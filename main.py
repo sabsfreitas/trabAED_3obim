@@ -42,57 +42,57 @@ def criar_janela_sucesso():
     mensagem_sucesso.setTextColor("green")
     mensagem_sucesso.draw(win)
 
-    win.getMouse() 
+    win.getMouse()  # Wait for a click before closing the success window
     win.close()
 
 def criar_janela():
-    win = GraphWin("FitVibe", 700, 600)
+    win = GraphWin("FitVibe", 440, 400)
     win.setBackground("#F0FFFF")
 
-    logo = Image(Point(180, 50), "FitVibes.png")
+    logo = Image(Point(50, 50), "FitVibes.png")
     logo.draw(win)
 
-    titulo = Text(Point(350, 100), "FitVibe - Wellness & Lifestyle")
+    titulo = Text(Point(250, 50), "FitVibe - Wellness & Lifestyle")
     titulo.setSize(17)
     titulo.setStyle("bold italic")
     titulo.setTextColor("black")
     titulo.draw(win)
 
     # Login
-    label_login = Text(Point(160, 130), "Login:")
+    label_login = Text(Point(120, 130), "Login:")
     label_login.setTextColor("black")
     label_login.setStyle("bold")
     label_login.draw(win)
 
-    login_entry = Entry(Point(420, 130), 20)
+    login_entry = Entry(Point(250, 130), 20)
     login_entry.draw(win)
     login_entry.setFill("white")
 
-
-    label_senha = Text(Point(160, 180), "Senha:")
+    # Senha
+    label_senha = Text(Point(120, 180), "Senha:")
     label_senha.setTextColor("black")
     label_senha.setStyle("bold")
     label_senha.draw(win)
 
-    senha_entry = Entry(Point(420, 180), 20)
+    senha_entry = Entry(Point(250, 182), 20)
     senha_entry.draw(win)
     senha_entry.setFill("white")
 
     # Tipo
-    label_tipo = Text(Point(160, 230), "Tipo (aluno ou treinador):")
+    label_tipo = Text(Point(190, 230), "Tipo (aluno ou treinador):")
     label_tipo.setTextColor("black")
     label_tipo.setStyle("bold")
     label_tipo.draw(win)
 
-    tipo_entry = Entry(Point(420, 230), 20)
+    tipo_entry = Entry(Point(250, 260), 20)
     tipo_entry.draw(win)
     tipo_entry.setFill("white")
 
-    cadastrar_button = Rectangle(Point(150, 260), Point(250, 290))
+    cadastrar_button = Rectangle(Point(150, 280), Point(250, 310))
     cadastrar_button.setFill("#C1E1C1")
     cadastrar_button.draw(win)
 
-    label_cadastrar = Text(Point(200, 275), "Cadastrar")
+    label_cadastrar = Text(Point(200, 295), "Cadastrar")
     label_cadastrar.setTextColor("black")
     label_cadastrar.setSize(10)
     label_cadastrar.setStyle("bold")
