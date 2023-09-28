@@ -68,7 +68,7 @@ def criar_janela():
     login_entry.draw(win)
     login_entry.setFill("white")
 
-    # Senha
+
     label_senha = Text(Point(160, 180), "Senha:")
     label_senha.setTextColor("black")
     label_senha.setStyle("bold")
