@@ -23,6 +23,15 @@ def criar_arquivo_csv():
     # else:
     #     file.close()
 
+# função para pegar as coordenadas de um botão automaticamente
+def inside(point, rectangle):
+    # is point inside rectangle?
+
+    ll = rectangle.getP1()
+    ur = rectangle.getP2()
+
+    return ll.getX() < point.getX() < ur.getX() and ll.getY() < point.getY() < ur.getY()
+
 def verificar_login(login, senha, tipo):
     file = open("usuarios.csv", "r")
     next(file) 
@@ -57,17 +66,63 @@ def criar_janela_mensagem(mensagem, nome, cor):
 
 def criar_janela_treino(login):
     win = GraphWin("Gerenciador de treinos", 800, 600)
-    win.setBackground("white")
+    win.setBackground("#F0FFFF")
+
+    welcome_text = Text(Point(400, 90), f"Bem-vindo, {login}")
+    welcome_text.setSize(30)
+    welcome_text.setStyle("bold italic")
+    welcome_text.setTextColor("black")
+    welcome_text.draw(win)
+
+    view_text = Text(Point(175, 180), "Visualize os treinos")
+    view_text.setSize(15)
+    view_text.setStyle("bold")
+    view_text.draw(win)
+
+    training_list_box = Rectangle(Point(50, 210), Point(300, 540))
+    training_list_box.setFill("#95AE95")
+    training_list_box.draw(win)
+
+    search_by_user = Rectangle(Point(50, 210), Point(300, 270))
+    search_by_user.setFill("#C1E1C1")
+    search_by_user.draw(win)
+    search_bar = Entry(Point(157, 255), 22)
+    search_bar.setFill("#F0FFFF")
+    search_bar.draw(win)
+    search_button = Rectangle(Point(258, 244), Point(294, 265))
+    search_button.setFill("black")
+    search_button.draw(win)
+    search_icon = Text(Point(276, 254), "✅")
+    search_icon.setSize(15)
+    search_icon.setTextColor("white")
+    search_icon.draw(win)
+    search_text = Text(Point(175, 225), "Pesquise por aluno:")
+    search_text.setSize(15)
+    search_text.draw(win)
+    search_list = Text(Point(175, 300), "")
+    search_list.setSize(12)
+    search_list.draw(win)
 
     while True:
-        click = win.checkMouse()
-        if click is not None:
-            # logica
-            pass # retira isso quando for codar, eh so p nao dar erro de identação no if abaixo
         if win.isClosed():
             break
 
+        clickPoint = win.getMouse()
+        if inside(clickPoint, search_button):
+            pesquisa = search_bar.getText()
+            pesquisar(pesquisa, search_list)
+
     win.close()
+
+def pesquisar(pesquisa, search_list):
+    lista_treino = ""
+    file = open("treinos/lista.csv", "r")
+    next(file)
+    for line in file:
+        row = line.strip().split(",")
+        if pesquisa == row[2]:
+            lista_treino += f"{row[0]}\n"
+    search_list.setText(f"{lista_treino}")
 
 
 def criar_janela():
@@ -148,7 +203,7 @@ def main():
 
             if click.getX() >= 80 and click.getX() <= 180 and click.getY() >= 280 and click.getY() <= 310:
                 if login and senha and tipo:
-                    if tipo.lower().strip() == "treinador" or tipo.lower().strip() == "aluno":
+                    if tipo.lower() == "treinador" or tipo.lower() == "aluno":
                         if not verificar_login(login, senha, tipo):
                             adicionar_usuario(login, senha, tipo)
                             criar_janela_mensagem("Cadastro realizado com sucesso!", "Sucesso", "green")
