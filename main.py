@@ -57,11 +57,27 @@ def adicionar_usuario(login, senha, tipo):
 
 def criar_janela_mensagem(mensagem, nome, cor):
     win = GraphWin(nome, 300, 100)
-    win.setBackground("white")
+    win.setBackground("#F0FFFF")
 
     mensagem_texto = Text(Point(150, 50), mensagem)
     mensagem_texto.setSize(14)
     mensagem_texto.setStyle("bold")
+    mensagem_texto.setTextColor(cor)
+    mensagem_texto.draw(win)
+
+    while not win.isClosed():
+        click = win.checkMouse()
+        if click:
+            break 
+
+    win.close()
+
+def criar_janela_lista(mensagem, nome, cor):
+    win = GraphWin(nome, 300, 600)
+    win.setBackground("#F0FFFF")
+
+    mensagem_texto = Text(Point(150, 300), mensagem)
+    mensagem_texto.setSize(10)
     mensagem_texto.setTextColor(cor)
     mensagem_texto.draw(win)
 
@@ -146,7 +162,7 @@ def criar_janela_treino(login):
     trainer_view_button = Rectangle(Point(500, 320), Point(750, 430))
     trainer_view_button.setFill("#C1E1C1")
     trainer_view_button.draw(win)
-    trainer_view_text = Text(Point(625, 375), "Visualizar seus treinos base")
+    trainer_view_text = Text(Point(625, 375), "Visualizar os títulos dos\nseus treinos base")
     trainer_view_text.setSize(12)
     trainer_view_text.draw(win)
     trainer_lorem = Text(Point(625, 485), "Um treino base é salvo\nno seu dispositivo para que\npossa ser reutilizado!")
@@ -169,8 +185,39 @@ def criar_janela_treino(login):
         if inside(clickPoint, update_list_button):
             criar_html_l_alunos()
 
-        if inside(clickPoint, trainer_createnew_button):
+        # criador de treinos base
+        if inside(clickPoint, trainer_createnew_button) and not is_user_selected:
             criador_treino("create_base")
+
+        # visualizador de treinos base (sem html!)
+        if inside(clickPoint, trainer_view_button) and not is_user_selected:
+            file = open("treinos base/lista.csv", "r")
+            cache = "".join(file)
+            file.close()
+            criar_janela_lista(f"{cache}", "nomes dos treinos", "black")
+
+        # visualizador de treinos dos alunos (gera um html!)
+        if inside(clickPoint, trainer_view_button) and is_user_selected:
+            file = open(f"paginas/{search_bar.getText()}.html", "w")
+            origin = open(f"treinos/{search_bar.getText()}.csv", "r")
+            origin_cache = []
+            for line in origin:
+                origin_cache += "   <p>\n   " + line + "   </p>\n"
+            file.write(f"""<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+                       
+{''.join(origin_cache)}
+</body>
+</html>""")
+            file.close()
+            origin.close()
+            criar_janela_mensagem("O treino pode ser\nvisualizado em html\nna pasta paginas!", "", "green")
 
         # se um usuário estiver selecionado as opções mudarão!
         if is_user_selected:
@@ -185,10 +232,49 @@ def criar_janela_treino(login):
             trainer_mod_text.draw(win)
             clickonce = True
 
+        # substitui o treino de um aluno por um treino base da escolha do treinador
+        if inside(clickPoint, trainer_createnew_button) and is_user_selected:
+            edit = GraphWin("")
+            edit.setBackground("#F0FFFF")
+
+            text = Text(Point(100, 60), f"Escreva o nome do treino que você deseja associar\nao aluno {search_bar.getText()}")
+            text.setSize(12)
+            text.draw(edit)
+            which = Entry(Point(100, 100), 20)
+            which.draw(edit)
+            button = Rectangle(Point(90, 120), Point(110, 140))
+            button.setFill("green")
+            button.draw(edit)
+
+            while not edit.isClosed():
+
+                click = edit.getMouse()
+                if inside(click, button):
+                    file = open("treinos base/lista.csv", "r")
+                    check = which.getText()+"\n"
+                    for line in file:
+                        if check == line:
+                            file.close()
+                            file = open(f"treinos/{search_bar.getText()}.csv", "w")
+                            fileswitch = open(f"treinos base/{which.getText()}.csv", "r")
+                            file.write("".join(fileswitch))
+                            file.close()
+                            fileswitch.close()
+                            edit.close()
+                            criar_janela_mensagem("Sucesso!", "Sucesso", "green")
+                            break
+                    file.close()
+                    edit.close()
+
+        # modifica o treino de um aluno!
+        if is_user_selected:
+            if inside(clickPoint, trainer_mod_button) and is_user_selected:
+                criador_treino(f"{search_bar.getText()}")
+
         # as opções retornarão ao normal ao deselecionar o usuário.
         if not is_user_selected and clickonce:
             trainer_createnew_text.setText("Criar um novo treino base")
-            trainer_view_text.setText("Visualizar seus treinos base")
+            trainer_view_text.setText("Visualizar os títulos dos\nseus treinos base")
             trainer_mod_text.undraw()
             trainer_mod_button.undraw()
             trainer_lorem.draw(win)
@@ -233,144 +319,160 @@ def criar_html_l_alunos():
     file.close()
     criar_janela_mensagem("Lista de alunos atualizada!\nCheque a pasta para acessar o\nhtml contendo a lista completa.", "Atualização completa", "green")
 
+# função responsável por criar treinos!
 def criador_treino(option):
+    win = GraphWin("Criador de Treinos", 640, 480)
+    win.setBackground("#F0FFFF")
+
+    logo = Image(Point(320, 240), "FitVibes.png")
+    logo.draw(win)
+
     if option == "create_base":
-        win = GraphWin("Criador de Treinos", 640, 480)
-        win.setBackground("#F0FFFF")
-
-        logo = Image(Point(320, 240), "FitVibes.png")
-        logo.draw(win)
-
         titulo = Text(Point(320, 48), "Criador de treino base")
-        titulo.setSize(15)
-        titulo.setStyle("bold italic")
-        titulo.draw(win)
+    else:
+        titulo = Text(Point(320, 48), "Modificador de treino")
+    titulo.setSize(15)
+    titulo.setStyle("bold italic")
+    titulo.draw(win)
 
-        create_exercise_box = Rectangle(Point(40, 96), Point(240, 184))
-        create_exercise_box.setFill("#C1E1C1")
-        create_exercise_box.draw(win)
-        create_exercise_text = Text(Point(140, 140), "Criar exercício")
-        create_exercise_text.draw(win)
-        edit_exercise_box = Rectangle(Point(40, 208), Point(240, 296))
-        edit_exercise_box.setFill("#C1E1C1")
-        edit_exercise_box.draw(win)
-        edit_exercise_text = Text(Point(140, 252), "Editar exercício")
-        edit_exercise_text.draw(win)
-        delete_exercise_box = Rectangle(Point(40, 320), Point(240, 408))
-        delete_exercise_box.setFill("#C1E1C1")
-        delete_exercise_box.draw(win)
-        delete_exercise_text = Text(Point(140, 364), "Deletar exercício")
-        delete_exercise_text.draw(win)
-        exercise_list_box = Rectangle(Point(284, 96), Point(636, 408))
-        exercise_list_box.setFill("#C1E1C1")
-        exercise_list_box.draw(win)
+    create_exercise_box = Rectangle(Point(40, 96), Point(240, 184))
+    create_exercise_box.setFill("#C1E1C1")
+    create_exercise_box.draw(win)
+    create_exercise_text = Text(Point(140, 140), "Criar exercício")
+    create_exercise_text.draw(win)
+    edit_exercise_box = Rectangle(Point(40, 208), Point(240, 296))
+    edit_exercise_box.setFill("#C1E1C1")
+    edit_exercise_box.draw(win)
+    edit_exercise_text = Text(Point(140, 252), "Editar exercício")
+    edit_exercise_text.draw(win)
+    delete_exercise_box = Rectangle(Point(40, 320), Point(240, 408))
+    delete_exercise_box.setFill("#C1E1C1")
+    delete_exercise_box.draw(win)
+    delete_exercise_text = Text(Point(140, 364), "Deletar exercício")
+    delete_exercise_text.draw(win)
+    exercise_list_box = Rectangle(Point(284, 96), Point(636, 408))
+    exercise_list_box.setFill("#C1E1C1")
+    exercise_list_box.draw(win)
+    if option == "create_base":
         treino_base = ["treino,exercicio,series,carga,grupo muscular\n"]
-        exercise_list_text = Text(Point(460, 262), ''.join(treino_base))
-        exercise_list_text.setSize(10)
-        exercise_list_text.draw(win)
-        save_base_training = Rectangle(Point(284, 408), Point(636, 438))
-        save_base_training.setFill("green")
-        save_base_training.draw(win)
-        save_base_ttext = Text(Point(460, 423), "Salvar")
-        save_base_ttext.draw(win)
+    else:
+        file = open(f"treinos/{option}.csv")
+        treino_base = []
+        for line in file:
+            treino_base += [line]
+        file.close()
+    exercise_list_text = Text(Point(460, 262), ''.join(treino_base))
+    exercise_list_text.setSize(10)
+    exercise_list_text.draw(win)
+    save_base_training = Rectangle(Point(284, 408), Point(636, 438))
+    save_base_training.setFill("green")
+    save_base_training.draw(win)
+    save_base_ttext = Text(Point(460, 423), "Salvar")
+    save_base_ttext.draw(win)
 
-        while not win.isClosed():
+    while not win.isClosed():
 
-            clickPoint = win.getMouse()
+        clickPoint = win.getMouse()
 
-            if inside(clickPoint, create_exercise_box):
-                treino_base += [criador_exercicio()]
-                exercise_list_text.setText(''.join(treino_base))
+        if inside(clickPoint, create_exercise_box):
+            treino_base += [criador_exercicio()]
+            exercise_list_text.setText(''.join(treino_base))
 
-            if inside(clickPoint, edit_exercise_box):
-                edit = GraphWin("", 200, 100)
-                edit.setBackground("#F0FFFF")
+        if inside(clickPoint, edit_exercise_box):
+            edit = GraphWin("", 200, 100)
+            edit.setBackground("#F0FFFF")
 
-                text = Text(Point(100, 20), "Editar qual linha?")
-                text.draw(edit)
-                which = Entry(Point(100, 50), 3)
-                which.setFill("#C1E1C1")
-                which.draw(edit)
-                confirm = Rectangle(Point(90, 70), Point(110, 90))
-                confirm.setFill("green")
-                confirm.draw(edit)
+            text = Text(Point(100, 20), "Editar qual linha?")
+            text.draw(edit)
+            which = Entry(Point(100, 50), 3)
+            which.setFill("#C1E1C1")
+            which.draw(edit)
+            confirm = Rectangle(Point(90, 70), Point(110, 90))
+            confirm.setFill("green")
+            confirm.draw(edit)
 
-                while not edit.isClosed():
+            while not edit.isClosed():
 
-                    clickPoint = edit.getMouse()
+                clickPoint = edit.getMouse()
 
-                    if inside(clickPoint, confirm):
+                if inside(clickPoint, confirm):
                         
-                        print(len(treino_base)-1)
-                        line_edit = int(str(which.getText()))
-                        if line_edit >= 1 and line_edit <= len(treino_base)-1:
-                            edit.close()
-                            treino_base[line_edit] = criador_exercicio()
-                        else:
-                            edit.close()
-                            criar_janela_mensagem("Número de linha inválido.", "Erro", "red")
-
-                exercise_list_text.setText(''.join(treino_base))
-            
-            if inside(clickPoint, delete_exercise_box):
-                edit = GraphWin("", 200, 100)
-                edit.setBackground("#F0FFFF")
-
-                text = Text(Point(100, 20), "Apagar qual linha?\nDigite 0 para cancelar.")
-                text.draw(edit)
-                which = Entry(Point(100, 50), 3)
-                which.setFill("#C1E1C1")
-                which.draw(edit)
-                confirm = Rectangle(Point(90, 70), Point(110, 90))
-                confirm.setFill("green")
-                confirm.draw(edit)
-
-                while not edit.isClosed():
-
-                    clickPoint = edit.getMouse()
-
-                    if inside(clickPoint, confirm):
-                        
-                        print(len(treino_base)-1)
-                        line_edit = int(str(which.getText()))
-                        if line_edit >= 1 and line_edit <= len(treino_base)-1:
-                            edit.close()
-                            del treino_base[line_edit]
-                        else:
-                            edit.close()
-                            criar_janela_mensagem("Número de linha inválido.", "Erro", "red")
-                
-                exercise_list_text.setText(''.join(treino_base))
-            
-            if inside(clickPoint, save_base_training):
-                edit = GraphWin("", 250, 125)
-                edit.setBackground("#F0FFFF")
-
-                text = Text(Point(100, 20), "Qual o nome do treino?")
-                text.draw(edit)
-                which = Entry(Point(100, 50), 20)
-                which.setFill("#C1E1C1")
-                which.draw(edit)
-                confirm = Rectangle(Point(90, 70), Point(110, 90))
-                confirm.setFill("green")
-                confirm.draw(edit)
-
-                while not edit.isClosed():
-
-                    clickPoint = edit.getMouse()
-
-                    if inside(clickPoint, confirm):
-                        name_training = which.getText()
-                        file = open(f"treinos base/{name_training}.csv", "w")
-                        file.write(''.join(treino_base))
-                        file.close()
-                        file = open("treinos base/lista.csv", "a", newline="")
-                        file.write(f"{name_training}\n")
-                        file.close()
+                    print(len(treino_base)-1)
+                    line_edit = int(str(which.getText()))
+                    if line_edit >= 1 and line_edit <= len(treino_base)-1:
                         edit.close()
-                        win.close()
+                        treino_base[line_edit] = criador_exercicio()
+                    else:
+                        edit.close()
+                        criar_janela_mensagem("Número de linha inválido.", "Erro", "red")
 
+            exercise_list_text.setText(''.join(treino_base))
+            
+        if inside(clickPoint, delete_exercise_box):
+            edit = GraphWin("", 200, 100)
+            edit.setBackground("#F0FFFF")
 
+            text = Text(Point(100, 20), "Apagar qual linha?\nDigite 0 para cancelar.")
+            text.draw(edit)
+            which = Entry(Point(100, 50), 3)
+            which.setFill("#C1E1C1")
+            which.draw(edit)
+            confirm = Rectangle(Point(90, 70), Point(110, 90))
+            confirm.setFill("green")
+            confirm.draw(edit)
+
+            while not edit.isClosed():
+
+                clickPoint = edit.getMouse()
+
+                if inside(clickPoint, confirm):
+                        
+                    print(len(treino_base)-1)
+                    line_edit = int(str(which.getText()))
+                    if line_edit >= 1 and line_edit <= len(treino_base)-1:
+                        edit.close()
+                        del treino_base[line_edit]
+                    else:
+                        edit.close()
+                        criar_janela_mensagem("Número de linha inválido.", "Erro", "red")
+                
+            exercise_list_text.setText(''.join(treino_base))
+            
+        if inside(clickPoint, save_base_training) and option == "create_base":
+            edit = GraphWin("", 250, 125)
+            edit.setBackground("#F0FFFF")
+
+            text = Text(Point(100, 20), "Qual o nome do treino?")
+            text.draw(edit)
+            which = Entry(Point(100, 50), 20)
+            which.setFill("#C1E1C1")
+            which.draw(edit)
+            confirm = Rectangle(Point(90, 70), Point(110, 90))
+            confirm.setFill("green")
+            confirm.draw(edit)
+
+            while not edit.isClosed():
+
+                clickPoint = edit.getMouse()
+
+                if inside(clickPoint, confirm):
+                    name_training = which.getText()
+                    file = open(f"treinos base/{name_training}.csv", "w")
+                    file.write(''.join(treino_base))
+                    file.close()
+                    file = open("treinos base/lista.csv", "a", newline="")
+                    file.write(f"{name_training}\n")
+                    file.close()
+                    edit.close()
+                    win.close()
+
+        if inside(clickPoint, save_base_training) and option != "create_base":
+            file = open(f"treinos/{option}.csv", "w")
+            file.write(''.join(treino_base))
+            file.close()
+            win.close()
+
+# função responsável por criar e editar exercícios!
 def criador_exercicio():
     win = GraphWin("", 300, 600)
     win.setBackground("#F0FFFF")
