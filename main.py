@@ -47,6 +47,14 @@ def adicionar_usuario(login, senha, tipo):
     file.write(f"{login},{senha},{tipo}\n")
     file.close()
 
+    # abaixo cria a ficha de treino do aluno
+    if tipo == "aluno":
+        file = open(f"treinos/{login}.csv", "w")
+        file.write("treino,exercicio,series,carga,grupo muscular")
+        file.close()
+        file = open("treinos/lista.csv", "a", newline="")
+        file.write(f"{login}\n")
+
 def criar_janela_mensagem(mensagem, nome, cor):
     win = GraphWin(nome, 300, 100)
     win.setBackground("white")
@@ -68,12 +76,16 @@ def criar_janela_treino(login):
     win = GraphWin("Gerenciador de treinos", 800, 600)
     win.setBackground("#F0FFFF")
 
+    logo = Image(Point(400, 300), "FitVibes.png")
+    logo.draw(win)
+
     welcome_text = Text(Point(400, 90), f"Bem-vindo, {login}")
     welcome_text.setSize(30)
     welcome_text.setStyle("bold italic")
     welcome_text.setTextColor("black")
     welcome_text.draw(win)
 
+    # caixa de pesquisa de alunos
     view_text = Text(Point(175, 180), "Visualize os treinos")
     view_text.setSize(15)
     view_text.setStyle("bold")
@@ -83,6 +95,7 @@ def criar_janela_treino(login):
     training_list_box.setFill("#95AE95")
     training_list_box.draw(win)
 
+    # barra de pesquisa
     search_by_user = Rectangle(Point(50, 210), Point(300, 270))
     search_by_user.setFill("#C1E1C1")
     search_by_user.draw(win)
@@ -99,31 +112,141 @@ def criar_janela_treino(login):
     search_text = Text(Point(175, 225), "Pesquise por aluno:")
     search_text.setSize(15)
     search_text.draw(win)
-    search_list = Text(Point(175, 300), "")
-    search_list.setSize(12)
+    search_list = Text(Point(175, 375), "")
+    search_list.setSize(15)
     search_list.draw(win)
+    update_list_button = Rectangle(Point(50, 480), Point(300, 540))
+    update_list_button.setFill("#C1E1C1")
+    update_list_button.draw(win)
+    update_list_text = Text(Point(175, 510), "Lista completa de alunos:")
+    update_list_text.setSize(15)
+    update_list_text.draw(win)
+
+    # caixa de opções
+    options_text = Text(Point(625, 180), "Opções")
+    options_text.setSize(15)
+    options_text.setStyle("bold")
+    options_text.draw(win)
+
+    trainer_options_box = Rectangle(Point(500, 210), Point(750, 540))
+    trainer_options_box.setFill("#95AE95")
+    trainer_options_box.draw(win)
+
+    # variável que determina se um usuário foi selecionado...
+    is_user_selected = False
+    clickonce = False
+
+    # opções para criar ou visualizar treinos no dispositivo
+    trainer_createnew_button = Rectangle(Point(500, 210), Point(750, 320))
+    trainer_createnew_button.setFill("#C1E1C1")
+    trainer_createnew_button.draw(win)
+    trainer_createnew_text = Text(Point(625, 265), "Criar um novo treino base")
+    trainer_createnew_text.setSize(12)
+    trainer_createnew_text.draw(win)
+    trainer_view_button = Rectangle(Point(500, 320), Point(750, 430))
+    trainer_view_button.setFill("#C1E1C1")
+    trainer_view_button.draw(win)
+    trainer_view_text = Text(Point(625, 375), "Visualizar seus treinos base")
+    trainer_view_text.setSize(12)
+    trainer_view_text.draw(win)
+    trainer_lorem = Text(Point(625, 485), "Um treino base é salvo\nno seu dispositivo para que\npossa ser reutilizado!")
+    trainer_lorem.setSize(12)
+    trainer_lorem.draw(win)
+
 
     while True:
         if win.isClosed():
             break
 
         clickPoint = win.getMouse()
+
+        # ao clicar na barra de pesquisa...
         if inside(clickPoint, search_button):
             pesquisa = search_bar.getText()
-            pesquisar(pesquisa, search_list)
+            is_user_selected = pesquisar(pesquisa, search_list)
+
+        # ao clicar no botão "lista completa de alunos: "...
+        if inside(clickPoint, update_list_button):
+            criar_html_l_alunos()
+
+        if inside(clickPoint, trainer_createnew_button):
+            criador_treino("create_base")
+
+        # se um usuário estiver selecionado as opções mudarão!
+        if is_user_selected:
+            trainer_lorem.undraw()
+            trainer_createnew_text.setText("Associar um treino base ao aluno")
+            trainer_mod_button = Rectangle(Point(500, 430), Point(750, 540))
+            trainer_mod_button.setFill("#C1E1C1")
+            trainer_mod_button.draw(win)
+            trainer_view_text.setText("Visualizar treino atual do aluno")
+            trainer_mod_text = Text(Point(625, 485), "Modificar treino atual do aluno")
+            trainer_mod_text.setSize(12)
+            trainer_mod_text.draw(win)
+            clickonce = True
+
+        # as opções retornarão ao normal ao deselecionar o usuário.
+        if not is_user_selected and clickonce:
+            trainer_createnew_text.setText("Criar um novo treino base")
+            trainer_view_text.setText("Visualizar seus treinos base")
+            trainer_mod_text.undraw()
+            trainer_mod_button.undraw()
+            trainer_lorem.draw(win)
+            clickonce = False
 
     win.close()
 
+# pesquisa e retorna aluno
 def pesquisar(pesquisa, search_list):
-    lista_treino = ""
     file = open("treinos/lista.csv", "r")
-    next(file)
+    pesquisa += "\n"
     for line in file:
-        row = line.strip().split(",")
-        if pesquisa == row[2]:
-            lista_treino += f"{row[0]}\n"
-    search_list.setText(f"{lista_treino}")
+        if pesquisa == line:
+            search_list.setText(f"{line}Aluno encontrado!")
+            return True
+    search_list.setText("Aluno não encontrado.")
+    return False
 
+# gera um html com a lista de alunos
+def criar_html_l_alunos():
+    alunos = ""
+    file = open("treinos/lista.csv", "r")
+    for line in file:
+        alunos += f"""    <p>
+        {line}    </p>\n"""
+    file.close()
+    file = open("paginas/lista_de_alunos.html", "w")
+    file.write(f"""<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Alunos</title>
+</head>
+<body>
+               
+    <h1>Lista de alunos:</h1>
+    <br>
+{alunos}
+</body>
+</html>""")
+    file.close()
+    criar_janela_mensagem("Lista de alunos atualizada!\nCheque a pasta para acessar o\nhtml contendo a lista completa.", "Atualização completa", "green")
+
+def criador_treino(option):
+    if option == "create_base":
+        win = GraphWin("Criador de Treinos", 640, 480)
+        win.setBackground("#F0FFFF")
+
+        logo = Image(Point(320, 240), "FitVibes.png")
+        logo.draw(win)
+
+        titulo = Text(Point(320, 72), "Criador de treino base")
+        titulo.setSize(15)
+        titulo.setStyle("bold italic")
+        titulo.draw(win)
+
+        treino_base = "treino,exercicio,series,carga,grupo muscular\n"
 
 def criar_janela():
     win = GraphWin("FitVibe", 440, 400)
