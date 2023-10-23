@@ -2,6 +2,7 @@ from graphics import *
 from functions import *
 import webbrowser
 import os
+import time
 
 # apenas funções principais
 
@@ -463,37 +464,68 @@ def criador_exercicio():
 
 def main():
     criar_arquivo_csv()
-    win, login_entry, senha_entry, tipo_entry = criar_janela()
+    win, login_entry, senha_entry, checkbox_aluno, checkbox_treinador, cadastrar_button, logar_button = criar_janela()
+    aluno_check = False
+    treinador_check = False
+    linhas_selecionadas = []
 
     while True:
         click = win.checkMouse()
         if click is not None:
             login = login_entry.getText()
             senha = senha_entry.getText()
-            tipo = tipo_entry
 
-            if click.getX() >= 80 and click.getX() <= 180 and click.getY() >= 280 and click.getY() <= 310:
-                if login and senha and tipo:
+            if inside(click, checkbox_aluno):
+                if aluno_check:
+                    apagar_x(linhas_selecionadas)
+                    aluno_check = False
+                else:
+                    if treinador_check:
+                        criar_janela_mensagem("Você só pode escolher uma opção.", "Erro", "red")
+                    else:
+                        aluno_check = True
+                        treinador_check = False
+                        linhas_selecionadas = desenhar_x(checkbox_aluno.getCenter(), win)
+                        if treinador_check:
+                            apagar_x(linhas_selecionadas)
+                            treinador_check = False
+            elif inside(click, checkbox_treinador):
+                if treinador_check:
+                    apagar_x(linhas_selecionadas)
+                    treinador_check = False
+                else:
+                    if aluno_check:
+                        criar_janela_mensagem("Você só pode escolher uma opção.", "Erro", "red")
+                    else:
+                        treinador_check = True
+                        aluno_check = False
+                        linhas_selecionadas = desenhar_x(checkbox_treinador.getCenter(), win)
+                        if aluno_check:
+                            apagar_x(linhas_selecionadas)
+                            aluno_check = False
+
+            if inside(click, cadastrar_button):
+                if login and senha and (aluno_check or treinador_check):
+                    tipo = "aluno" if aluno_check else "treinador"
                     if tipo == "treinador" or tipo == "aluno":
                         if not verificar_login(login, senha, tipo):
                             adicionar_usuario(login, senha, tipo)
                             criar_janela_mensagem("Cadastro realizado com sucesso!", "Sucesso", "green")
                         else:
                             criar_janela_mensagem("Esse usuário já existe.", "Erro", "red")
-                    else:
-                        criar_janela_mensagem("Apenas treinadores ou alunos.", "Erro", "red")
-            elif click.getX() >= 295 and click.getX() <= 395 and click.getY() >= 280 and click.getY() <= 310:
-                if login and senha and tipo:
+            elif inside(click, logar_button):
+                if login and senha and (aluno_check or treinador_check):
+                    tipo = "aluno" if aluno_check else "treinador"
                     if verificar_login(login, senha, tipo):
                         criar_janela_mensagem(f"Login realizado com sucesso!\nBem-vindo, {login}", "Sucesso", "green")
                         if tipo == "treinador":
                             win.close()
-                            criar_janela_treino(login) # se é treinador, abre janela de treino e fecha a anterior. se for aluno, tem que criar janela p visualização dos seus treinos
+                            criar_janela_treino(login)
                         elif tipo == "aluno":
-                            
                             criar_janela_aluno(login)
                     else:
                         criar_janela_mensagem("Faça um cadastro primeiro.", "Erro", "red")
+
         if win.isClosed():
             break
 

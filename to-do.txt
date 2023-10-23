@@ -19,9 +19,10 @@ DONE:
 
 • Tela de visualizar treinos (usuário) - OK - 23/10
 
+DEADLINE: 01/11
 
 TO-DO:
-• Adicionar lápis para editar treino em vez de especificar a linha por texto; nao mudar a linha inteira, mas sim apenas o que o treinador quiser mudar (ex: só a carga ou série, ou só serie)
+• Adicionar lápis para editar treino em vez de especificar a linha por texto; não mudar a linha inteira, mas sim apenas o que o treinador quiser mudar (ex: só a carga ou série, ou só série...)
 
 • Adicionar aba de exercícios para clicar e colocar no treino em vez de escrever
 

@@ -29,21 +29,6 @@ def criar_janela_lista(mensagem, nome, cor):
 
     win.close()
 
-def desenhar_x(posicao, win):
-    x1 = posicao.getX() - 8
-    y1 = posicao.getY() - 8
-    x2 = posicao.getX() + 8
-    y2 = posicao.getY() + 8
-    linha_1 = Line(Point(x1, y1), Point(x2, y2))
-    linha_1.draw(win)
-    linha_2 = Line(Point(x1, y2), Point(x2, y1))
-    linha_2.draw(win)
-    return [linha_1, linha_2]
-
-def apagar_x(linhas):
-    for linha in linhas:
-        linha.undraw()
-
 # função para pegar as coordenadas de um botão automaticamente
 def inside(point, rectangle):
     # is point inside rectangle?
@@ -104,31 +89,46 @@ def pesquisar(pesquisa, search_list):
     search_list.setText("Aluno não encontrado.")
     return False
 
-def verificar_cliques(win, checkbox_aluno, checkbox_treinador, linhas_aluno, linhas_treinador):
-    aluno_check = False
-    treinador_check = False
-    tipo_entry = ""
+def desenhar_x(posicao, win):
+    x1 = posicao.getX() - 8
+    y1 = posicao.getY() - 8
+    x2 = posicao.getX() + 8
+    y2 = posicao.getY() + 8
+    linha_1 = Line(Point(x1, y1), Point(x2, y2))
+    linha_1.draw(win)
+    linha_2 = Line(Point(x1, y2), Point(x2, y1))
+    linha_2.draw(win)
+    return [linha_1, linha_2]
 
-    while True:
-        click = win.getMouse()
-        if not aluno_check and inside(click, checkbox_aluno):
-            linhas_aluno = desenhar_x(checkbox_aluno.getCenter(), win)
-            tipo_entry = "aluno"
-            aluno_check = True
-            treinador_check = False
-            if linhas_treinador:
-                apagar_x(linhas_treinador)
+def apagar_x(linhas):
+    for linha in linhas:
+        linha.undraw()
 
-        elif not treinador_check and inside(click, checkbox_treinador):
-            linhas_treinador = desenhar_x(checkbox_treinador.getCenter(), win)
-            tipo_entry = "treinador"
-            treinador_check = True
-            aluno_check = False
-            if linhas_aluno:
-                apagar_x(linhas_aluno)
 
-        print(tipo_entry)
-        return tipo_entry
+# def verificar_cliques(win, checkbox_aluno, checkbox_treinador, linhas_aluno, linhas_treinador):
+#     aluno_check = False
+#     treinador_check = False
+#     tipo_entry = ""
+
+#     while True:
+#         click = win.getMouse()
+
+#         if not aluno_check and inside(click, checkbox_aluno):
+#             linhas_aluno = desenhar_x(checkbox_aluno.getCenter(), win)
+#             tipo_entry = "aluno"
+#             aluno_check = True
+#             treinador_check = False
+#             if linhas_treinador:
+#                 apagar_x(linhas_treinador)
+
+#         elif not treinador_check and inside(click, checkbox_treinador):
+#             linhas_treinador = desenhar_x(checkbox_treinador.getCenter(), win)
+#             tipo_entry = "treinador"
+#             treinador_check = True
+#             aluno_check = False
+#             if linhas_aluno:
+#                 apagar_x(linhas_aluno)
+#         print(tipo_entry)
 
 # gera um html com a lista de alunos - table
 def criar_html_l_alunos():
@@ -246,11 +246,4 @@ def criar_janela():
     label_logar.setStyle("bold")
     label_logar.draw(win)
 
-    aluno_check = False
-    treinador_check = False
-    linhas_aluno = []
-    linhas_treinador = []
-
-    tipo_entry = verificar_cliques(win, checkbox_aluno, checkbox_treinador, linhas_aluno, linhas_treinador)
-
-    return win, login_entry, senha_entry, tipo_entry
+    return win, login_entry, senha_entry, checkbox_aluno, checkbox_treinador, cadastrar_button, logar_button
