@@ -9,14 +9,37 @@ def criar_janela_aluno(login):
     win = GraphWin("Seus treinos", 800, 600)
     win.setBackground("#F0FFFF")
 
-    logo = Image(Point(400, 300), "public/FitVibes.png")
-    logo.draw(win)
-
-    welcome_text = Text(Point(400, 90), f"Bem-vindo, aluno {login}")
+    welcome_text = Text(Point(400, 90), f"Treino do aluno {login}")
     welcome_text.setSize(24)
     welcome_text.setStyle("bold italic")
     welcome_text.setTextColor("black")
     welcome_text.draw(win)
+    
+    file = open(f"public/treinos/{login}.csv", "r")
+    cache = "".join(file)
+    file.close()
+    
+    # split = cache.strip().split(",")
+    
+    script_dir = os.path.dirname(__file__)
+
+    rel_path = f'public/paginas/{login}.html'
+    abs_file_path = os.path.join(script_dir, rel_path)
+            # Verifica se o arquivo existe
+    if os.path.exists(abs_file_path):
+        webbrowser.open('file://' + abs_file_path)
+        treino = Text(Point(400, 300), cache)
+        treino.setSize(20)
+        treino.setStyle("bold")
+        treino.setTextColor("black")
+        treino.draw(win)
+    else:
+        treino = Text(Point(400, 300), "Ainda sem treinos disponíveis!")
+        treino.setSize(20)
+        treino.setStyle("bold")
+        treino.setTextColor("black")
+        treino.draw(win)
+    
 
 
 def criar_janela_treino(login):
@@ -148,6 +171,7 @@ def criar_janela_treino(login):
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Treinos</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
                        

@@ -15,19 +15,17 @@ DONE:
 
 • Adicionar biblioteca para abrir os HTMLs - OK - 22/10
 
-• Arrumar HTMLs - OK - 22/10
+• Arrumar HTMLs - OK - 22/10 - ADICIONADO CSS 23/10
 
-
-IN PROGRESS:
-• Tela de visualizar treinos (usuário) -  22/10
+• Tela de visualizar treinos (usuário) - OK - 23/10
 
 
 TO-DO:
+• Adicionar lápis para editar treino em vez de especificar a linha por texto; nao mudar a linha inteira, mas sim apenas o que o treinador quiser mudar (ex: só a carga ou série, ou só serie)
+
 • Adicionar aba de exercícios para clicar e colocar no treino em vez de escrever
 
-• Em vez de escrever o nome do treino base, selecioná-lo
-
-• Adicionar lápis para editar treino em vez de especificar a linha por texto
+• Em vez de escrever o nome do treino base, selecioná-lo 
 
 • Aperfeiçoar telas restantes
 
