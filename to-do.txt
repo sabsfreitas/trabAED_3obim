@@ -1,0 +1,34 @@
+DONE:
+• Telas de cadastro e login - OK
+
+• CSV com dados do usuário - OK
+
+• Validar login e cadastro - OK
+
+• Tela de cadastro de treinos (treinador) - OK
+
+• CSV com dados do treino - OK
+
+• Ajustar estrutura do código - OK - 22/10
+
+• Radio button treinador/aluno na tela de cadastro/login - OK - 22/10
+
+• Adicionar biblioteca para abrir os HTMLs - OK - 22/10
+
+• Arrumar HTMLs - OK - 22/10
+
+
+IN PROGRESS:
+• Tela de visualizar treinos (usuário) -  22/10
+
+
+TO-DO:
+• Adicionar aba de exercícios para clicar e colocar no treino em vez de escrever
+
+• Em vez de escrever o nome do treino base, selecioná-lo
+
+• Adicionar lápis para editar treino em vez de especificar a linha por texto
+
+• Aperfeiçoar telas restantes
+
+• Ajeitar o problema de fechar as janelas tudo de uma vez

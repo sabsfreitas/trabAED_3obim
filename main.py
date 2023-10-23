@@ -1,98 +1,29 @@
-from graphics import *
+from graphics import * 
+from functions import *
+import webbrowser
+import os
 
-def criar_arquivo_csv():
-    header = ["Login", "Senha", "Tipo"]
-    try:
-        file = open("usuarios.csv", "r")
-        file.close()  
-    except FileNotFoundError:
-        file = open("usuarios.csv", "w", newline="")
-        file.write(",".join(header) + "\n")
-    finally:
-        file.close()
+# apenas funções principais
 
-    # header = ["Login", "Senha", "Tipo"]
-    # try:
-    #     file = open("usuarios.csv", "r")
-    # except FileNotFoundError:
-    #     try:
-    #         file = open("usuarios.csv", "w", newline="")
-    #         file.write(",".join(header) + "\n")
-    #     finally:
-    #         file.close()
-    # else:
-    #     file.close()
-
-# função para pegar as coordenadas de um botão automaticamente
-def inside(point, rectangle):
-    # is point inside rectangle?
-
-    ll = rectangle.getP1()
-    ur = rectangle.getP2()
-
-    return ll.getX() < point.getX() < ur.getX() and ll.getY() < point.getY() < ur.getY()
-
-def verificar_login(login, senha, tipo):
-    file = open("usuarios.csv", "r")
-    next(file) 
-    for line in file:
-        row = line.strip().split(",")
-        if len(row) == 3 and row[0] == login and row[1] == senha and row[2] == tipo:
-            return True
-    file.close()
-    return False
-
-def adicionar_usuario(login, senha, tipo):
-    file = open("usuarios.csv", "a", newline="")
-    file.write(f"{login},{senha},{tipo}\n")
-    file.close()
-
-    # abaixo cria a ficha de treino do aluno
-    if tipo == "aluno":
-        file = open(f"treinos/{login}.csv", "w")
-        file.write("treino,exercicio,series,carga,grupo muscular")
-        file.close()
-        file = open("treinos/lista.csv", "a", newline="")
-        file.write(f"{login}\n")
-
-def criar_janela_mensagem(mensagem, nome, cor):
-    win = GraphWin(nome, 300, 100)
+def criar_janela_aluno(login):
+    win = GraphWin("Seus treinos", 800, 600)
     win.setBackground("#F0FFFF")
 
-    mensagem_texto = Text(Point(150, 50), mensagem)
-    mensagem_texto.setSize(14)
-    mensagem_texto.setStyle("bold")
-    mensagem_texto.setTextColor(cor)
-    mensagem_texto.draw(win)
+    logo = Image(Point(400, 300), "public/FitVibes.png")
+    logo.draw(win)
 
-    while not win.isClosed():
-        click = win.checkMouse()
-        if click:
-            break 
+    welcome_text = Text(Point(400, 90), f"Bem-vindo, aluno {login}")
+    welcome_text.setSize(24)
+    welcome_text.setStyle("bold italic")
+    welcome_text.setTextColor("black")
+    welcome_text.draw(win)
 
-    win.close()
-
-def criar_janela_lista(mensagem, nome, cor):
-    win = GraphWin(nome, 300, 600)
-    win.setBackground("#F0FFFF")
-
-    mensagem_texto = Text(Point(150, 300), mensagem)
-    mensagem_texto.setSize(10)
-    mensagem_texto.setTextColor(cor)
-    mensagem_texto.draw(win)
-
-    while not win.isClosed():
-        click = win.checkMouse()
-        if click:
-            break 
-
-    win.close()
 
 def criar_janela_treino(login):
     win = GraphWin("Gerenciador de treinos", 800, 600)
     win.setBackground("#F0FFFF")
 
-    logo = Image(Point(400, 300), "FitVibes.png")
+    logo = Image(Point(400, 300), "public/FitVibes.png")
     logo.draw(win)
 
     welcome_text = Text(Point(400, 90), f"Bem-vindo, {login}")
@@ -191,24 +122,32 @@ def criar_janela_treino(login):
 
         # visualizador de treinos base (sem html!)
         if inside(clickPoint, trainer_view_button) and not is_user_selected:
-            file = open("treinos base/lista.csv", "r")
+            file = open("public/treinos base/lista.csv", "r")
             cache = "".join(file)
             file.close()
             criar_janela_lista(f"{cache}", "nomes dos treinos", "black")
 
         # visualizador de treinos dos alunos (gera um html!)
         if inside(clickPoint, trainer_view_button) and is_user_selected:
-            file = open(f"paginas/{search_bar.getText()}.html", "w")
-            origin = open(f"treinos/{search_bar.getText()}.csv", "r")
+            file = open(f"public/paginas/{search_bar.getText()}.html", "w")
+            origin = open(f"public/treinos/{search_bar.getText()}.csv", "r")
             origin_cache = []
+            origin_cache.append("<table border='1'>")
             for line in origin:
-                origin_cache += "   <p>\n   " + line + "   </p>\n"
+                origin_cache.append("<tr>")
+                cells = line.strip().split(',')
+                for cell in cells:
+                    origin_cache.append(f"<th>{cell}</th>")
+                origin_cache.append("</tr>")
+
+            origin_cache.append("</table>")
+
             file.write(f"""<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Treinos</title>
 </head>
 <body>
                        
@@ -217,7 +156,19 @@ def criar_janela_treino(login):
 </html>""")
             file.close()
             origin.close()
-            criar_janela_mensagem("O treino pode ser\nvisualizado em html\nna pasta paginas!", "", "green")
+
+            # VISUALIZA TREINO ALUNO
+                # diretório atual do script
+            script_dir = os.path.dirname(__file__)
+
+            rel_path = f'public/paginas/{search_bar.getText()}.html'
+            abs_file_path = os.path.join(script_dir, rel_path)
+
+            # Verifica se o arquivo existe
+            if os.path.exists(abs_file_path):
+                webbrowser.open('file://' + abs_file_path)
+            else:
+                print("Arquivo não encontrado.")
 
         # se um usuário estiver selecionado as opções mudarão!
         if is_user_selected:
@@ -237,7 +188,14 @@ def criar_janela_treino(login):
             edit = GraphWin("")
             edit.setBackground("#F0FFFF")
 
-            text = Text(Point(100, 60), f"Escreva o nome do treino que você deseja associar\nao aluno {search_bar.getText()}")
+            text = Text(Point(100, 60), f"Treino base do aluno {search_bar.getText()}") # aqui acho que precisa mostrar direto os treinos que tem
+
+            file = open("public/treinos base/lista.csv", "r")
+            cache = "".join(file)
+            file.close()
+            treinos =  Text(Point(70, 180), cache)  
+            treinos.draw(edit)
+
             text.setSize(12)
             text.draw(edit)
             which = Entry(Point(100, 100), 20)
@@ -246,17 +204,19 @@ def criar_janela_treino(login):
             button.setFill("green")
             button.draw(edit)
 
+
             while not edit.isClosed():
 
                 click = edit.getMouse()
+
                 if inside(click, button):
-                    file = open("treinos base/lista.csv", "r")
+                    file = open("public/treinos base/lista.csv", "r")
                     check = which.getText()+"\n"
                     for line in file:
                         if check == line:
                             file.close()
-                            file = open(f"treinos/{search_bar.getText()}.csv", "w")
-                            fileswitch = open(f"treinos base/{which.getText()}.csv", "r")
+                            file = open(f"public/treinos/{search_bar.getText()}.csv", "w")
+                            fileswitch = open(f"public/treinos base/{which.getText()}.csv", "r")
                             file.write("".join(fileswitch))
                             file.close()
                             fileswitch.close()
@@ -282,49 +242,12 @@ def criar_janela_treino(login):
 
     win.close()
 
-# pesquisa e retorna aluno
-def pesquisar(pesquisa, search_list):
-    file = open("treinos/lista.csv", "r")
-    pesquisa += "\n"
-    for line in file:
-        if pesquisa == line:
-            search_list.setText(f"{line}Aluno encontrado!")
-            return True
-    search_list.setText("Aluno não encontrado.")
-    return False
-
-# gera um html com a lista de alunos
-def criar_html_l_alunos():
-    alunos = ""
-    file = open("treinos/lista.csv", "r")
-    for line in file:
-        alunos += f"""    <p>
-        {line}    </p>\n"""
-    file.close()
-    file = open("paginas/lista_de_alunos.html", "w")
-    file.write(f"""<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista de Alunos</title>
-</head>
-<body>
-               
-    <h1>Lista de alunos:</h1>
-    <br>
-{alunos}
-</body>
-</html>""")
-    file.close()
-    criar_janela_mensagem("Lista de alunos atualizada!\nCheque a pasta para acessar o\nhtml contendo a lista completa.", "Atualização completa", "green")
-
 # função responsável por criar treinos!
 def criador_treino(option):
     win = GraphWin("Criador de Treinos", 640, 480)
     win.setBackground("#F0FFFF")
 
-    logo = Image(Point(320, 240), "FitVibes.png")
+    logo = Image(Point(320, 240), "public/FitVibes.png")
     logo.draw(win)
 
     if option == "create_base":
@@ -356,7 +279,7 @@ def criador_treino(option):
     if option == "create_base":
         treino_base = ["treino,exercicio,series,carga,grupo muscular\n"]
     else:
-        file = open(f"treinos/{option}.csv")
+        file = open(f"public/treinos/{option}.csv")
         treino_base = []
         for line in file:
             treino_base += [line]
@@ -457,17 +380,17 @@ def criador_treino(option):
 
                 if inside(clickPoint, confirm):
                     name_training = which.getText()
-                    file = open(f"treinos base/{name_training}.csv", "w")
+                    file = open(f"public/treinos base/{name_training}.csv", "w")
                     file.write(''.join(treino_base))
                     file.close()
-                    file = open("treinos base/lista.csv", "a", newline="")
+                    file = open("public/treinos base/lista.csv", "a", newline="")
                     file.write(f"{name_training}\n")
                     file.close()
                     edit.close()
                     win.close()
 
         if inside(clickPoint, save_base_training) and option != "create_base":
-            file = open(f"treinos/{option}.csv", "w")
+            file = open(f"public/treinos/{option}.csv", "w")
             file.write(''.join(treino_base))
             file.close()
             win.close()
@@ -514,71 +437,6 @@ def criador_exercicio():
             win.close()
             return str(new_training_entry.getText() + "," + new_exercise_entry.getText() + "," + new_series_entry.getText() + "," + new_load_entry.getText() + "," + new_group_entry.getText() + "\n")
 
-def criar_janela():
-    win = GraphWin("FitVibe", 440, 400)
-    win.setBackground("#F0FFFF")
-
-    logo = Image(Point(50, 50), "FitVibes.png")
-    logo.draw(win)
-
-    titulo = Text(Point(250, 50), "FitVibe - Wellness & Lifestyle")
-    titulo.setSize(17)
-    titulo.setStyle("bold italic")
-    titulo.setTextColor("black")
-    titulo.draw(win)
-
-    # Login
-    label_login = Text(Point(120, 130), "Login:")
-    label_login.setTextColor("black")
-    label_login.setStyle("bold")
-    label_login.draw(win)
-
-    login_entry = Entry(Point(250, 130), 20)
-    login_entry.draw(win)
-    login_entry.setFill("white")
-
-    # Senha
-    label_senha = Text(Point(120, 180), "Senha:")
-    label_senha.setTextColor("black")
-    label_senha.setStyle("bold")
-    label_senha.draw(win)
-
-    senha_entry = Entry(Point(250, 182), 20)
-    senha_entry.draw(win)
-    senha_entry.setFill("white")
-
-    # Tipo
-    label_tipo = Text(Point(190, 230), "Tipo (aluno ou treinador):")
-    label_tipo.setTextColor("black")
-    label_tipo.setStyle("bold")
-    label_tipo.draw(win)
-
-    tipo_entry = Entry(Point(250, 260), 20)
-    tipo_entry.draw(win)
-    tipo_entry.setFill("white")
-
-    cadastrar_button = Rectangle(Point(80, 280), Point(180, 310))
-    cadastrar_button.setFill("#C1E1C1")
-    cadastrar_button.draw(win)
-
-    label_cadastrar = Text(Point(130, 295), "Cadastrar")
-    label_cadastrar.setTextColor("black")
-    label_cadastrar.setSize(10)
-    label_cadastrar.setStyle("bold")
-    label_cadastrar.draw(win)
-
-    logar_button = Rectangle(Point(295, 280), Point(395, 310))
-    logar_button.setFill("#C1E1C1")
-    logar_button.draw(win)
-
-    label_logar = Text(Point(345, 295), "Logar")
-    label_logar.setTextColor("black")
-    label_logar.setSize(10)
-    label_logar.setStyle("bold")
-    label_logar.draw(win)
-
-    return win, login_entry, senha_entry, tipo_entry
-
 def main():
     criar_arquivo_csv()
     win, login_entry, senha_entry, tipo_entry = criar_janela()
@@ -588,11 +446,11 @@ def main():
         if click is not None:
             login = login_entry.getText()
             senha = senha_entry.getText()
-            tipo = tipo_entry.getText().strip()
+            tipo = tipo_entry
 
             if click.getX() >= 80 and click.getX() <= 180 and click.getY() >= 280 and click.getY() <= 310:
                 if login and senha and tipo:
-                    if tipo.lower() == "treinador" or tipo.lower() == "aluno":
+                    if tipo == "treinador" or tipo == "aluno":
                         if not verificar_login(login, senha, tipo):
                             adicionar_usuario(login, senha, tipo)
                             criar_janela_mensagem("Cadastro realizado com sucesso!", "Sucesso", "green")
@@ -604,9 +462,12 @@ def main():
                 if login and senha and tipo:
                     if verificar_login(login, senha, tipo):
                         criar_janela_mensagem(f"Login realizado com sucesso!\nBem-vindo, {login}", "Sucesso", "green")
-                        if tipo.lower().strip() == "treinador":
+                        if tipo == "treinador":
                             win.close()
                             criar_janela_treino(login) # se é treinador, abre janela de treino e fecha a anterior. se for aluno, tem que criar janela p visualização dos seus treinos
+                        elif tipo == "aluno":
+                            
+                            criar_janela_aluno(login)
                     else:
                         criar_janela_mensagem("Faça um cadastro primeiro.", "Erro", "red")
         if win.isClosed():
