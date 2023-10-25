@@ -19,14 +19,16 @@ DONE:
 
 • Tela de visualizar treinos (usuário) - OK - 23/10
 
+• Adicionar aba de exercícios para clicar e colocar no treino em vez de escrever - OK - 24/10
+
+• Em vez de escrever o nome do treino base, selecioná-lo - OK - 25/10
+
 DEADLINE: 01/11
 
 TO-DO:
-• Adicionar lápis para editar treino em vez de especificar a linha por texto; não mudar a linha inteira, mas sim apenas o que o treinador quiser mudar (ex: só a carga ou série, ou só série...)
 
-• Adicionar aba de exercícios para clicar e colocar no treino em vez de escrever
+• Adicionar lápis para editar treino em vez de especificar a linha por texto; não mudar a linha inteira, mas sim apenas o que o treinador quiser mudar (ex: só a carga ou série, ou só série...) -- MESMA COISA COM O DELETAR
 
-• Em vez de escrever o nome do treino base, selecioná-lo 
 
 • Aperfeiçoar telas restantes
 

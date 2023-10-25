@@ -2,7 +2,6 @@ from graphics import *
 from functions import *
 import webbrowser
 import os
-import time
 
 # apenas funções principais
 
@@ -10,32 +9,44 @@ def criar_janela_aluno(login):
     win = GraphWin("Seus treinos", 800, 600)
     win.setBackground("#F0FFFF")
 
-    welcome_text = Text(Point(400, 90), f"Treino do aluno {login}")
+    welcome_text = Text(Point(400, 100), f"Seus treinos")
     welcome_text.setSize(24)
-    welcome_text.setStyle("bold italic")
+    welcome_text.setStyle("bold")
     welcome_text.setTextColor("black")
     welcome_text.draw(win)
-    
+
+    aluno_text = Text(Point(650, 50), f"Aluno: {login}")
+    aluno_text.setSize(18)
+    aluno_text.setStyle("normal")
+    aluno_text.setTextColor("black")
+    aluno_text.draw(win)
+
     file = open(f"public/treinos/{login}.csv", "r")
     cache = "".join(file)
     file.close()
-    
-    # split = cache.strip().split(",")
     
     script_dir = os.path.dirname(__file__)
 
     rel_path = f'public/paginas/{login}.html'
     abs_file_path = os.path.join(script_dir, rel_path)
-            # Verifica se o arquivo existe
+
+    split = cache.strip().split(",")
+    array_texto = " ".join(split)
+    
+
     if os.path.exists(abs_file_path):
         webbrowser.open('file://' + abs_file_path)
-        treino = Text(Point(400, 300), cache)
+        rect = Rectangle(Point(100, 150), Point(700, 500))
+        rect.setFill("#C6E6CC")
+        rect.setWidth(0) 
+        rect.draw(win)
+        treino = Text(Point(400, 220), array_texto)
         treino.setSize(20)
-        treino.setStyle("bold")
         treino.setTextColor("black")
         treino.draw(win)
+        
     else:
-        treino = Text(Point(400, 300), "Ainda sem treinos disponíveis!")
+        treino = Text(Point(400, 200), "Ainda sem treinos disponíveis!")
         treino.setSize(20)
         treino.setStyle("bold")
         treino.setTextColor("black")
@@ -114,9 +125,11 @@ def criar_janela_treino(login):
     trainer_createnew_text = Text(Point(625, 265), "Criar um novo treino base")
     trainer_createnew_text.setSize(12)
     trainer_createnew_text.draw(win)
+
     trainer_view_button = Rectangle(Point(500, 320), Point(750, 430))
     trainer_view_button.setFill("#C1E1C1")
     trainer_view_button.draw(win)
+
     trainer_view_text = Text(Point(625, 375), "Visualizar os títulos dos\nseus treinos base")
     trainer_view_text.setSize(12)
     trainer_view_text.draw(win)
@@ -175,7 +188,7 @@ def criar_janela_treino(login):
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-                       
+    <h1>Treino do aluno {search_bar.getText()}</h1>
 {''.join(origin_cache)}
 </body>
 </html>""")
@@ -208,33 +221,45 @@ def criar_janela_treino(login):
             trainer_mod_text.draw(win)
             clickonce = True
 
-        # substitui o treino de um aluno por um treino base da escolha do treinador
         if inside(clickPoint, trainer_createnew_button) and is_user_selected:
-            edit = GraphWin("")
+            edit = GraphWin("Associar treino base", 500, 400)
             edit.setBackground("#F0FFFF")
 
-            text = Text(Point(100, 60), f"Treino base do aluno {search_bar.getText()}") # aqui acho que precisa mostrar direto os treinos que tem
-
-            file = open("public/treinos base/lista.csv", "r")
-            cache = "".join(file)
-            file.close()
-            treinos =  Text(Point(70, 180), cache)  
-            treinos.draw(edit)
-
+            text = Text(Point(100, 60), f"Treino base do aluno {search_bar.getText()}") 
             text.setSize(12)
             text.draw(edit)
+
+            file = open("public/treinos base/lista.csv", "r")
+            cache = []
+            for line in file:
+                cache.append(line.strip())
+            file.close()
+
+            buttons = []
+            for i, treino in enumerate(cache):
+                button2 = Rectangle(Point(300, 120 + i * 40), Point(400, 150 + i * 40))
+                button2.setFill("#C1E1C1")
+                button2.draw(edit)  
+                text = Text(Point(350, 135 + i * 40), treino)
+                text.draw(edit)  
+                buttons.append((button2, treino))
+
             which = Entry(Point(100, 100), 20)
             which.draw(edit)
-            button = Rectangle(Point(90, 120), Point(110, 140))
-            button.setFill("green")
-            button.draw(edit)
-
+            button1 = Rectangle(Point(90, 120), Point(110, 140))
+            button1.setFill("green")
+            button1.draw(edit)
 
             while not edit.isClosed():
 
                 click = edit.getMouse()
 
-                if inside(click, button):
+                for button2, treino_text in buttons:
+                    if inside(click, button2):
+                        which.setText(treino_text)
+                    
+                print(which.getText())
+                if inside(click, button1):
                     file = open("public/treinos base/lista.csv", "r")
                     check = which.getText()+"\n"
                     for line in file:
@@ -288,19 +313,23 @@ def criador_treino(option):
     create_exercise_box.draw(win)
     create_exercise_text = Text(Point(140, 140), "Criar exercício")
     create_exercise_text.draw(win)
+
     edit_exercise_box = Rectangle(Point(40, 208), Point(240, 296))
     edit_exercise_box.setFill("#C1E1C1")
     edit_exercise_box.draw(win)
     edit_exercise_text = Text(Point(140, 252), "Editar exercício")
     edit_exercise_text.draw(win)
+
     delete_exercise_box = Rectangle(Point(40, 320), Point(240, 408))
     delete_exercise_box.setFill("#C1E1C1")
     delete_exercise_box.draw(win)
     delete_exercise_text = Text(Point(140, 364), "Deletar exercício")
     delete_exercise_text.draw(win)
+
     exercise_list_box = Rectangle(Point(284, 96), Point(636, 408))
     exercise_list_box.setFill("#C1E1C1")
     exercise_list_box.draw(win)
+
     if option == "create_base":
         treino_base = ["treino,exercicio,series,carga,grupo muscular\n"]
     else:
@@ -312,9 +341,11 @@ def criador_treino(option):
     exercise_list_text = Text(Point(460, 262), ''.join(treino_base))
     exercise_list_text.setSize(10)
     exercise_list_text.draw(win)
+
     save_base_training = Rectangle(Point(284, 408), Point(636, 438))
     save_base_training.setFill("green")
     save_base_training.draw(win)
+
     save_base_ttext = Text(Point(460, 423), "Salvar")
     save_base_ttext.draw(win)
 
@@ -422,8 +453,30 @@ def criador_treino(option):
 
 # função responsável por criar e editar exercícios!
 def criador_exercicio():
-    win = GraphWin("", 300, 600)
+    win = GraphWin("", 600, 800)
     win.setBackground("#F0FFFF")
+
+    exercise_list = ["Supino", "Agachamento", "Legpress", "Abdominal", "Bíceps rosca"] # adicionar mais
+
+    exercises = {
+    "Supino": "Peito",
+    "Agachamento": "Perna",
+    "Agachamento sumô": "Perna",
+    "Abdominal": "Abdomen",
+    "Bíceps rosca": "Braço"
+    } # dicionário associando os grupos musculares respectivos
+
+    buttons = []
+
+    for i, exercise in enumerate(exercise_list):
+        button = Rectangle(Point(300, 120 + i * 40), Point(400, 150 + i * 40))
+        button.setFill("#C1E1C1")
+        button.draw(win)
+
+        text = Text(Point(350, 135 + i * 40), exercise)
+        text.draw(win)
+
+        buttons.append((button, exercise))
 
     new_training_text = Text(Point(150, 20), "Treino")
     new_training_text.draw(win)
@@ -435,17 +488,20 @@ def criador_exercicio():
     new_exercise_entry = Entry(Point(150, 170), 30)
     new_exercise_entry.setFill("#C1E1C1")
     new_exercise_entry.draw(win)
-    new_series_text = Text(Point(150, 260), "Series")
+
+    new_series_text = Text(Point(150, 260), "Séries")
     new_series_text.draw(win)
     new_series_entry = Entry(Point(150, 290), 30)
     new_series_entry.setFill("#C1E1C1")
     new_series_entry.draw(win)
+
     new_load_text = Text(Point(150, 380), "Carga")
     new_load_text.draw(win)
     new_load_entry = Entry(Point(150, 410), 30)
     new_load_entry.setFill("#C1E1C1")
     new_load_entry.draw(win)
-    new_group_text = Text(Point(150, 500), "Grupo Muscular")
+
+    new_group_text = Text(Point(150, 500), "Grupo muscular")
     new_group_text.draw(win)
     new_group_entry = Entry(Point(150, 530), 30)
     new_group_entry.setFill("#C1E1C1")
@@ -461,6 +517,12 @@ def criador_exercicio():
         if inside(clickPoint, confirm_new_entry):
             win.close()
             return str(new_training_entry.getText() + "," + new_exercise_entry.getText() + "," + new_series_entry.getText() + "," + new_load_entry.getText() + "," + new_group_entry.getText() + "\n")
+        
+        for button, exercise in buttons:
+            if inside(clickPoint, button):
+                new_exercise_entry.setText(exercise)
+                if exercise in exercises:
+                    new_group_entry.setText(exercises[exercise])
 
 def main():
     criar_arquivo_csv()

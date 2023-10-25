@@ -105,31 +105,6 @@ def apagar_x(linhas):
         linha.undraw()
 
 
-# def verificar_cliques(win, checkbox_aluno, checkbox_treinador, linhas_aluno, linhas_treinador):
-#     aluno_check = False
-#     treinador_check = False
-#     tipo_entry = ""
-
-#     while True:
-#         click = win.getMouse()
-
-#         if not aluno_check and inside(click, checkbox_aluno):
-#             linhas_aluno = desenhar_x(checkbox_aluno.getCenter(), win)
-#             tipo_entry = "aluno"
-#             aluno_check = True
-#             treinador_check = False
-#             if linhas_treinador:
-#                 apagar_x(linhas_treinador)
-
-#         elif not treinador_check and inside(click, checkbox_treinador):
-#             linhas_treinador = desenhar_x(checkbox_treinador.getCenter(), win)
-#             tipo_entry = "treinador"
-#             treinador_check = True
-#             aluno_check = False
-#             if linhas_aluno:
-#                 apagar_x(linhas_aluno)
-#         print(tipo_entry)
-
 # gera um html com a lista de alunos - table
 def criar_html_l_alunos():
     alunos = ""

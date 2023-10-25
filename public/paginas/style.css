@@ -16,3 +16,7 @@ td, tr {
     height: 30px;
     background-color: #F0FFFF;
 }
+
+h1 {
+    margin: auto;
+}
