@@ -328,7 +328,7 @@ def listador_treino(treino=["treino,exercicio,series,carga,grupo muscular\n"], w
         text = Text(Point(460, 105 + i * 20), treino[i].replace("\n",""))
         text.draw(win)
 
-        treinos.append((buttony, selecter))
+        treinos.append((buttony, selecter, text))
     return treinos
 
 # função responsável por criar treinos!
@@ -389,7 +389,7 @@ def criador_treino(option):
         text = Text(Point(460, 105 + i * 20), treino_base[i].replace("\n",""))
         text.draw(win)
 
-        treinos.append((buttony, selecter))
+        treinos.append((buttony, selecter, text))
 
     save_base_training = Rectangle(Point(284, 408), Point(636, 438))
     save_base_training.setFill("green")
@@ -405,8 +405,10 @@ def criador_treino(option):
 
         if inside(clickPoint, create_exercise_box):
             treino_base += [criador_exercicio()]
-            exercise_list_box.undraw()
-            exercise_list_box.draw(win)
+            line_select = 0
+            for buttony, selecter, text in treinos:
+                buttony.undraw()
+                text.undraw()
             treinos = listador_treino(treino_base, win)
 
         if inside(clickPoint, edit_exercise_box):
@@ -420,8 +422,9 @@ def criador_treino(option):
                 criar_janela_mensagem("Número de linha inválido.", "Erro", "red")
 
             line_select = 0
-            exercise_list_box.undraw()
-            exercise_list_box.draw(win)
+            for buttony, selecter, text in treinos:
+                buttony.undraw()
+                text.undraw()
             treinos = listador_treino(treino_base, win)
             
         if inside(clickPoint, delete_exercise_box):
@@ -432,11 +435,12 @@ def criador_treino(option):
                 criar_janela_mensagem("Número de linha inválido.", "Erro", "red")
                 
             line_select = 0
-            exercise_list_box.undraw()
-            exercise_list_box.draw(win)
+            for buttony, selecter, text in treinos:
+                buttony.undraw()
+                text.undraw()
             treinos = listador_treino(treino_base, win)
 
-        for buttony, selecter in treinos:
+        for buttony, selecter, text in treinos:
             if inside(clickPoint, buttony):
                 if selecter == 0:
                     criar_janela_mensagem("Você não pode\n selecionar a\n primeira linha!", "Erro", "red")
