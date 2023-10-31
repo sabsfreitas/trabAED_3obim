@@ -292,6 +292,21 @@ def criar_janela_treino(login):
 
     win.close()
 
+#função responsável por listar o treino!
+def listador_treino(treino=["treino,exercicio,series,carga,grupo muscular\n"], win=False):
+    treinos = []
+    for i in range(len(treino)):
+        buttony = Rectangle(Point(288, 100 + i * 20), Point(298, 110 + i * 20))
+        buttony.setFill("#F0FFFF")
+        buttony.draw(win)
+        selecter = i
+
+        text = Text(Point(460, 105 + i * 20), treino[i].replace("\n",""))
+        text.draw(win)
+
+        treinos.append((buttony, selecter))
+    return treinos
+
 # função responsável por criar treinos!
 def criador_treino(option):
     win = GraphWin("Criador de Treinos", 640, 480)
@@ -338,9 +353,19 @@ def criador_treino(option):
         for line in file:
             treino_base += [line]
         file.close()
-    exercise_list_text = Text(Point(460, 262), ''.join(treino_base))
-    exercise_list_text.setSize(10)
-    exercise_list_text.draw(win)
+
+    treinos = []
+    for i in range(len(treino_base)):
+        buttony = Rectangle(Point(288, 100 + i * 20), Point(298, 110 + i * 20))
+        buttony.setFill("#F0FFFF")
+        buttony.draw(win)
+
+        selecter = i
+
+        text = Text(Point(460, 105 + i * 20), treino_base[i].replace("\n",""))
+        text.draw(win)
+
+        treinos.append((buttony, selecter))
 
     save_base_training = Rectangle(Point(284, 408), Point(636, 438))
     save_base_training.setFill("green")
@@ -348,6 +373,7 @@ def criador_treino(option):
 
     save_base_ttext = Text(Point(460, 423), "Salvar")
     save_base_ttext.draw(win)
+    line_select = 0
 
     while not win.isClosed():
 
@@ -355,67 +381,54 @@ def criador_treino(option):
 
         if inside(clickPoint, create_exercise_box):
             treino_base += [criador_exercicio()]
-            exercise_list_text.setText(''.join(treino_base))
+            exercise_list_box.undraw()
+            exercise_list_box.draw(win)
+            treinos = listador_treino(treino_base, win)
 
         if inside(clickPoint, edit_exercise_box):
-            edit = GraphWin("", 200, 100)
-            edit.setBackground("#F0FFFF")
+            line_edit = line_select
+            if line_edit >= 1 and line_edit <= len(treino_base)-1:
+                lineit = treino_base[line_edit].replace("\n",",")
+                lineit = lineit.split(",")
+                lineit = list(filter(None, lineit))
+                treino_base[line_edit] = criador_exercicio(lineit[0],lineit[1],lineit[2],lineit[3],lineit[4])
+            else:
+                criar_janela_mensagem("Número de linha inválido.", "Erro", "red")
 
-            text = Text(Point(100, 20), "Editar qual linha?")
-            text.draw(edit)
-            which = Entry(Point(100, 50), 3)
-            which.setFill("#C1E1C1")
-            which.draw(edit)
-            confirm = Rectangle(Point(90, 70), Point(110, 90))
-            confirm.setFill("green")
-            confirm.draw(edit)
-
-            while not edit.isClosed():
-
-                clickPoint = edit.getMouse()
-
-                if inside(clickPoint, confirm):
-                        
-                    print(len(treino_base)-1)
-                    line_edit = int(str(which.getText()))
-                    if line_edit >= 1 and line_edit <= len(treino_base)-1:
-                        edit.close()
-                        treino_base[line_edit] = criador_exercicio()
-                    else:
-                        edit.close()
-                        criar_janela_mensagem("Número de linha inválido.", "Erro", "red")
-
-            exercise_list_text.setText(''.join(treino_base))
+            line_select = 0
+            exercise_list_box.undraw()
+            exercise_list_box.draw(win)
+            treinos = listador_treino(treino_base, win)
             
         if inside(clickPoint, delete_exercise_box):
-            edit = GraphWin("", 200, 100)
-            edit.setBackground("#F0FFFF")
-
-            text = Text(Point(100, 20), "Apagar qual linha?\nDigite 0 para cancelar.")
-            text.draw(edit)
-            which = Entry(Point(100, 50), 3)
-            which.setFill("#C1E1C1")
-            which.draw(edit)
-            confirm = Rectangle(Point(90, 70), Point(110, 90))
-            confirm.setFill("green")
-            confirm.draw(edit)
-
-            while not edit.isClosed():
-
-                clickPoint = edit.getMouse()
-
-                if inside(clickPoint, confirm):
-                        
-                    print(len(treino_base)-1)
-                    line_edit = int(str(which.getText()))
-                    if line_edit >= 1 and line_edit <= len(treino_base)-1:
-                        edit.close()
-                        del treino_base[line_edit]
-                    else:
-                        edit.close()
-                        criar_janela_mensagem("Número de linha inválido.", "Erro", "red")
+            line_edit = line_select
+            if line_edit >= 1 and line_edit <= len(treino_base)-1:
+                del treino_base[line_edit]
+            else:
+                criar_janela_mensagem("Número de linha inválido.", "Erro", "red")
                 
-            exercise_list_text.setText(''.join(treino_base))
+            line_select = 0
+            exercise_list_box.undraw()
+            exercise_list_box.draw(win)
+            treinos = listador_treino(treino_base, win)
+
+        for buttony, selecter in treinos:
+            if inside(clickPoint, buttony):
+                if selecter == 0:
+                    criar_janela_mensagem("Você não pode\n selecionar a\n primeira linha!", "Erro", "red")
+                else:
+                    if line_select == selecter:
+                        buttony.setFill("#F0FFFF")
+                        line_select = 0
+                        print(line_select)
+                    elif line_select == 0:
+                        buttony.setFill("black")
+                        line_select = selecter
+                        print(line_select)
+                    elif line_select != 0 and line_select != selecter:
+                        criar_janela_mensagem("Você só pode\n selecionar uma\n linha por vez!", "Erro", "red")
+                        print(line_select)
+
             
         if inside(clickPoint, save_base_training) and option == "create_base":
             edit = GraphWin("", 250, 125)
@@ -452,7 +465,7 @@ def criador_treino(option):
             win.close()
 
 # função responsável por criar e editar exercícios!
-def criador_exercicio():
+def criador_exercicio(treino="",exercicio="",series="",carga="",gm=""):
     win = GraphWin("", 600, 800)
     win.setBackground("#F0FFFF")
 
@@ -483,29 +496,36 @@ def criador_exercicio():
     new_training_entry = Entry(Point(150, 50), 30)
     new_training_entry.setFill("#C1E1C1")
     new_training_entry.draw(win)
+    new_training_entry.setText(treino)
+
     new_exercise_text = Text(Point(150, 140), "Exercicio")
     new_exercise_text.draw(win)
     new_exercise_entry = Entry(Point(150, 170), 30)
     new_exercise_entry.setFill("#C1E1C1")
     new_exercise_entry.draw(win)
+    new_exercise_entry.setText(exercicio)
 
     new_series_text = Text(Point(150, 260), "Séries")
     new_series_text.draw(win)
     new_series_entry = Entry(Point(150, 290), 30)
     new_series_entry.setFill("#C1E1C1")
     new_series_entry.draw(win)
+    new_series_entry.setText(series)
 
     new_load_text = Text(Point(150, 380), "Carga")
     new_load_text.draw(win)
     new_load_entry = Entry(Point(150, 410), 30)
     new_load_entry.setFill("#C1E1C1")
     new_load_entry.draw(win)
+    new_load_entry.setText(carga)
 
     new_group_text = Text(Point(150, 500), "Grupo muscular")
     new_group_text.draw(win)
     new_group_entry = Entry(Point(150, 530), 30)
     new_group_entry.setFill("#C1E1C1")
     new_group_entry.draw(win)
+    new_group_entry.setText(gm)
+
     confirm_new_entry = Rectangle(Point(135, 560), Point(165, 590))
     confirm_new_entry.setFill("green")
     confirm_new_entry.draw(win)
