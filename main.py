@@ -22,6 +22,8 @@ def criar_janela_aluno(login):
     aluno_text.draw(win)
 
     file = open(f"public/treinos/{login}.csv", "r")
+    for _ in range(1):
+        next(file)
     cache = "".join(file)
     file.close()
     
@@ -31,15 +33,37 @@ def criar_janela_aluno(login):
     abs_file_path = os.path.join(script_dir, rel_path)
 
     split = cache.strip().split(",")
-    array_texto = " ".join(split)
-    
 
+    count = 0
+    header_ficha = []
+    for i in split:
+        count += 1
+        if count < 5:
+            header_ficha.append(i)
+
+    for i in range(len(header_ficha)):
+        if header_ficha[i] == 'treino':
+            header_ficha[i] = 'Treino'
+        if header_ficha[i] == 'exercicio':
+            header_ficha[i] = 'Exercício'
+        if header_ficha[i] == 'series':
+            header_ficha[i] = 'Séries'
+        if header_ficha[i] == 'carga':
+            header_ficha[i] = 'Carga'
+
+    array_texto = "  |  ".join(split)
+    array_textoheader = " | ".join(header_ficha)
+    
     if os.path.exists(abs_file_path):
         webbrowser.open('file://' + abs_file_path)
         rect = Rectangle(Point(100, 150), Point(700, 500))
         rect.setFill("#C6E6CC")
         rect.setWidth(0) 
         rect.draw(win)
+        # header = Text(Point(400, 220), array_textoheader)
+        # header.setSize(20)
+        # header.setTextColor("black")
+        # header.draw(win)
         treino = Text(Point(400, 220), array_texto)
         treino.setSize(20)
         treino.setTextColor("black")

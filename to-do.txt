@@ -23,12 +23,11 @@ DONE:
 
 • Em vez de escrever o nome do treino base, selecioná-lo - OK - 25/10
 
+• Adicionar lápis para editar treino em vez de especificar a linha por texto; não mudar a linha inteira, mas sim apenas o que o treinador quiser mudar (ex: só a carga ou série, ou só série...) -- MESMA COISA COM O DELETAR - OK - 31/10
+
 DEADLINE: 01/11
 
 TO-DO:
-
-• Adicionar lápis para editar treino em vez de especificar a linha por texto; não mudar a linha inteira, mas sim apenas o que o treinador quiser mudar (ex: só a carga ou série, ou só série...) -- MESMA COISA COM O DELETAR
-
 
 • Aperfeiçoar telas restantes
 
