@@ -9,66 +9,49 @@ def criar_janela_aluno(login):
     win = GraphWin("Seus treinos", 800, 600)
     win.setBackground("#F0FFFF")
 
-    welcome_text = Text(Point(400, 100), f"Seus treinos")
+    welcome_text = Text(Point(400, 80), f"Seus treinos")
     welcome_text.setSize(24)
     welcome_text.setStyle("bold")
-    welcome_text.setTextColor("black")
     welcome_text.draw(win)
 
     aluno_text = Text(Point(650, 50), f"Aluno: {login}")
     aluno_text.setSize(18)
-    aluno_text.setStyle("normal")
-    aluno_text.setTextColor("black")
     aluno_text.draw(win)
 
     file = open(f"public/treinos/{login}.csv", "r")
-    for _ in range(1):
-        next(file)
-    cache = "".join(file)
+    cache = file.read()
     file.close()
     
     script_dir = os.path.dirname(__file__)
-
     rel_path = f'public/paginas/{login}.html'
     abs_file_path = os.path.join(script_dir, rel_path)
 
-    split = cache.strip().split(",")
+    rows = cache.strip().split("\n")
+    header = rows[0].split(",")
+    items = []
+    for row in rows[1:]:
+        items.append(row.split(",")) # matriz com cada ex. separado
+    print(items)
 
-    count = 0
-    header_ficha = []
-    for i in split:
-        count += 1
-        if count < 5:
-            header_ficha.append(i)
-
-    for i in range(len(header_ficha)):
-        if header_ficha[i] == 'treino':
-            header_ficha[i] = 'Treino'
-        if header_ficha[i] == 'exercicio':
-            header_ficha[i] = 'Exercício'
-        if header_ficha[i] == 'series':
-            header_ficha[i] = 'Séries'
-        if header_ficha[i] == 'carga':
-            header_ficha[i] = 'Carga'
-
-    array_texto = "  |  ".join(split)
-    array_textoheader = " | ".join(header_ficha)
     
     if os.path.exists(abs_file_path):
         webbrowser.open('file://' + abs_file_path)
-        rect = Rectangle(Point(100, 150), Point(700, 500))
+        rect = Rectangle(Point(20, 100), Point(780, 550))
         rect.setFill("#C6E6CC")
         rect.setWidth(0) 
         rect.draw(win)
-        # header = Text(Point(400, 220), array_textoheader)
-        # header.setSize(20)
-        # header.setTextColor("black")
-        # header.draw(win)
-        treino = Text(Point(400, 220), array_texto)
-        treino.setSize(20)
-        treino.setTextColor("black")
-        treino.draw(win)
-        
+
+        for index, item in enumerate(header):
+            header_text = Text(Point(70 + index * 150, 120), item)
+            header_text.setSize(18)
+            header_text.setStyle("bold")
+            header_text.draw(win)
+
+        for row_index, row in enumerate(items):
+            for col_index, item in enumerate(row):
+                items_text = Text(Point(70 + col_index * 150, 160 + row_index * 30), item)
+                items_text.setSize(18)
+                items_text.draw(win)
     else:
         treino = Text(Point(400, 200), "Ainda sem treinos disponíveis!")
         treino.setSize(20)
@@ -271,7 +254,7 @@ def criar_janela_treino(login):
             which = Entry(Point(100, 100), 20)
             which.draw(edit)
             button1 = Rectangle(Point(90, 120), Point(110, 140))
-            button1.setFill("green")
+            button1.setFill("#C1E1C1")
             button1.draw(edit)
 
             while not edit.isClosed():
@@ -468,7 +451,7 @@ def criador_treino(option):
             which.setFill("#C1E1C1")
             which.draw(edit)
             confirm = Rectangle(Point(90, 70), Point(110, 90))
-            confirm.setFill("green")
+            confirm.setFill("#C1E1C1")
             confirm.draw(edit)
 
             while not edit.isClosed():
@@ -555,7 +538,7 @@ def criador_exercicio(treino="",exercicio="",series="",carga="",gm=""):
     new_group_entry.setText(gm)
 
     confirm_new_entry = Rectangle(Point(135, 560), Point(165, 590))
-    confirm_new_entry.setFill("green")
+    confirm_new_entry.setFill("#C1E1C1")
     confirm_new_entry.draw(win)
 
     while not win.isClosed():
@@ -591,7 +574,7 @@ def main():
                     aluno_check = False
                 else:
                     if treinador_check:
-                        criar_janela_mensagem("Você só pode escolher uma opção.", "Erro", "red")
+                        criar_janela_mensagem("Você só pode \nescolher uma \nopção.", "Erro", "red")
                     else:
                         aluno_check = True
                         treinador_check = False
@@ -605,7 +588,7 @@ def main():
                     treinador_check = False
                 else:
                     if aluno_check:
-                        criar_janela_mensagem("Você só pode escolher uma opção.", "Erro", "red")
+                        criar_janela_mensagem("Você só pode \nescolher uma \nopção.", "Erro", "red")
                     else:
                         treinador_check = True
                         aluno_check = False
